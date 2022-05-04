@@ -1,10 +1,17 @@
-import PokemonDetail from "./PokemonDetail.jsx";
-import "./App.css";
+import React from "react";
+
+import ErrorBoundary from "./error-boundary.js";
+
+const PokemonDetail = React.lazy(() => import("./PokemonDetail.jsx"));
 
 function App() {
   return (
     <div className="App">
-      <PokemonDetail />
+      <ErrorBoundary fallback="Couldn't catch them all'">
+        <React.Suspense fallback="Loading pokemon">
+          <PokemonDetail />
+        </React.Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
