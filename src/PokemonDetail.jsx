@@ -3,8 +3,28 @@ import { fetchPokemon, suspensify } from "./api";
 
 let initialPokemon = suspensify(fetchPokemon(1));
 
+function DelaySpinner() {
+  return (
+    <span role="img" aria-label="spinner" className="DelaySpinner">
+      <style>{`
+        .DelaySpinner {
+          animation: rotation 1.5s infinite linear;
+          display: inline-block;
+          font-size: .7rem
+        }
+        @keyframes rotation {
+          from { transform: rotate(0deg) }
+          to { transform: rotate(359deg) }
+        }
+      `}</style>
+      🌀
+    </span>
+  );
+}
+
 export default function PokemonDetail() {
   let [pokemonResource, setPokemonResource] = React.useState(initialPokemon);
+  let [isPending, startTransition] = React.useTransition();
   let pokemon = pokemonResource.read();
 
   return (
@@ -13,11 +33,14 @@ export default function PokemonDetail() {
       <button
         type="button"
         onClick={() =>
-          setPokemonResource(suspensify(fetchPokemon(pokemon.id + 1)))
+          startTransition(() =>
+            setPokemonResource(suspensify(fetchPokemon(pokemon.id + 1)))
+          )
         }
       >
         Next
       </button>
+      {isPending && <DelaySpinner />}
     </div>
   );
 }
