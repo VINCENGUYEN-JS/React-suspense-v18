@@ -22,25 +22,12 @@ function DelaySpinner() {
   );
 }
 
-export default function PokemonDetail() {
-  let [pokemonResource, setPokemonResource] = React.useState(initialPokemon);
-  let [isPending, startTransition] = React.useTransition();
-  let pokemon = pokemonResource.read();
-
+export default function PokemonDetail({ resource, isStale }) {
+  const pokemon = resource.read();
   return (
     <div>
       <div>{pokemon.name}</div>
-      <button
-        type="button"
-        onClick={() =>
-          startTransition(() =>
-            setPokemonResource(suspensify(fetchPokemon(pokemon.id + 1)))
-          )
-        }
-      >
-        Next
-      </button>
-      {isPending && <DelaySpinner />}
+      {isStale && <DelaySpinner />}
     </div>
   );
 }

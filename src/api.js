@@ -1,9 +1,6 @@
 export function fetchPokemon(id) {
-  return fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(
-    (res) =>
-      new Promise((resolve, reject) => {
-        setTimeout(() => resolve(res.json()), 3000);
-      })
+  return fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((res) =>
+    res.json()
   );
 }
 

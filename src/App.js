@@ -1,19 +1,45 @@
 import React from "react";
+import ErrorBoundary from "./error-boundary";
+import { fetchPokemon, suspensify } from "./api";
 
-import ErrorBoundary from "./error-boundary.js";
+const PokemonDetail = React.lazy(() => import("./PokemonDetail"));
 
-const PokemonDetail = React.lazy(() => import("./PokemonDetail.jsx"));
+let initialPokemon = suspensify(fetchPokemon(1));
 
-function App() {
+export default function App() {
+  let [pokemon, setPokemon] = React.useState(initialPokemon);
+  let deferredPokemon = React.useDeferredValue(pokemon, {
+    timeoutMs: 3000,
+  });
+  let deferredPokemonIsStale = deferredPokemon !== pokemon;
+  let [, startTransition] = React.useTransition();
+
   return (
-    <div className="App">
-      <ErrorBoundary fallback="Couldn't catch them all'">
-        <React.Suspense fallback="Loading pokemon">
-          <PokemonDetail />
+    <div>
+      <h1>Pokedex</h1>
+
+      <ErrorBoundary fallback={"Couldn't catch 'em all."}>
+        <React.Suspense fallback={"Catching your Pokemon..."}>
+          <PokemonDetail
+            resource={deferredPokemon}
+            isStale={deferredPokemonIsStale}
+          />
+
+          <button
+            type="button"
+            disabled={deferredPokemonIsStale}
+            onClick={() =>
+              startTransition(() =>
+                setPokemon(
+                  suspensify(fetchPokemon(deferredPokemon.read().id + 1))
+                )
+              )
+            }
+          >
+            Next
+          </button>
         </React.Suspense>
       </ErrorBoundary>
     </div>
   );
 }
-
-export default App;
